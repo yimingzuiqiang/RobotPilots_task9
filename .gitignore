@@ -1,0 +1,7 @@
+/.vscode
+/build
+/install
+/log
+/src/detect_bag1
+/src/detect_msg
+/src/vino_task
