@@ -85,8 +85,12 @@ public:
             /*
             RCLCPP_INFO(this->get_logger(), "成功构造图像: %dx%d, 通道数=%d",
                         my_img.cols, my_img.rows, my_img.channels());
+            */
 
-            // 6. 显示图像
+            // 7. 在my_img上绘制四个角点
+            draw_original_center();
+
+            //  显示图像
             if (!window_created)
             {
                 cv::namedWindow("sub_img", cv::WINDOW_NORMAL);
@@ -95,10 +99,6 @@ public:
 
             cv::imshow("sub_img", my_img);
             cv::waitKey(1); // 必须调用，否则窗口无响应
-            */
-
-            // 7. 在my_img上绘制四个角点
-            draw_original_center();
         }
         catch (const cv::Exception &e)
         {
@@ -140,7 +140,7 @@ public:
             // 先输出4个角点坐标
             // std::cout << "装甲板点的数量：" << armor.keypoints.size() << std::endl;
 
-            int points_count = 1;
+            // int points_count = 1;
             // 遍历每个装甲板的四个角点
             for (auto &point : armor.keypoints)
             {
@@ -151,13 +151,16 @@ public:
                 点2：(950,525,1)
                 点3：(1099,536,1)
                 点4：(1104,475,1)
-                */
+                
                 std::cout << "点" << points_count << "：" 
                 <<"(" << point.x << "," << point.y << "," << point.z << ")" 
                 << std::endl;
                 points_count++;
+                */
+               //把四个角点用蓝色绘制出来
+                cv::circle(my_img, cv::Point(point.x, point.y), 5, cv::Scalar(255, 0, 0), -1); // 黄色填充，半径30
             }
-            std::cout << std::endl;
+            // std::cout << std::endl;
         }
     }
 };
