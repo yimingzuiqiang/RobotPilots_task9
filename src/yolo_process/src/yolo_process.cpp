@@ -138,7 +138,26 @@ public:
 
             // 绘制四个角点(红色)
             // 先输出4个角点坐标
-            std::cout << "装甲板点的数量：" << armor.keypoints.size() << std::endl;
+            // std::cout << "装甲板点的数量：" << armor.keypoints.size() << std::endl;
+
+            int points_count = 1;
+            // 遍历每个装甲板的四个角点
+            for (auto &point : armor.keypoints)
+            {
+                /*
+                左上-左下-右下-右上
+                像素坐标系，齐次为3维
+                点1：(956,460,1)
+                点2：(950,525,1)
+                点3：(1099,536,1)
+                点4：(1104,475,1)
+                */
+                std::cout << "点" << points_count << "：" 
+                <<"(" << point.x << "," << point.y << "," << point.z << ")" 
+                << std::endl;
+                points_count++;
+            }
+            std::cout << std::endl;
         }
     }
 };
