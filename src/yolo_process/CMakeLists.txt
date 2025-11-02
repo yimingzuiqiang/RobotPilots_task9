@@ -27,6 +27,7 @@ ament_target_dependencies(yolo_process
 )
 
 target_include_directories(yolo_process PUBLIC ${OpenCV_INCLUDE_DIRS})
+target_include_directories(yolo_process PUBLIC /home/xiaoyiming/eigen-5.0.0)
 
 #链接库
 target_link_libraries(yolo_process  ${OpenCV_LIBS})
