@@ -18,6 +18,12 @@ private:
     std::vector<NNDetectData> my_detections;
     // 存储一个装甲板上四个角点
     std::vector<cv::Point3f> my_keypoints;
+    // 4个角点的x坐标之和（用于求中心点的x坐标）
+    float my_x_sum = 0.0f;
+    // 4个角点的y坐标之和（用于求中心点的y坐标）
+    float my_y_sum = 0.0f;
+    // 中心点
+    cv::Point2f my_armor_center;
     bool window_created = false;
 
 public:
@@ -131,16 +137,12 @@ public:
         // 在当前帧，遍历每一个装甲板，先通过置信度筛选
         for (auto &armor : my_detections)
         {
+            my_x_sum = 0.0f;
+            my_y_sum = 0.0f;
             if (armor.confidence < 0.5)
             {
                 continue;
             }
-
-            // 绘制四个角点(红色)
-            // 先输出4个角点坐标
-            // std::cout << "装甲板点的数量：" << armor.keypoints.size() << std::endl;
-
-            // int points_count = 1;
             // 遍历每个装甲板的四个角点
             for (auto &point : armor.keypoints)
             {
@@ -151,16 +153,20 @@ public:
                 点2：(950,525,1)
                 点3：(1099,536,1)
                 点4：(1104,475,1)
-                
-                std::cout << "点" << points_count << "：" 
-                <<"(" << point.x << "," << point.y << "," << point.z << ")" 
+
+                std::cout << "点" << points_count << "："
+                <<"(" << point.x << "," << point.y << "," << point.z << ")"
                 << std::endl;
                 points_count++;
                 */
-               //把四个角点用蓝色绘制出来
-                cv::circle(my_img, cv::Point(point.x, point.y), 5, cv::Scalar(255, 0, 0), -1); // 黄色填充，半径30
+                // 把四个角点用蓝色绘制出来
+                cv::circle(my_img, cv::Point(point.x, point.y), 5, cv::Scalar(255, 0, 0), -1); // 蓝色填充，半径30
+                my_x_sum += point.x;
+                my_y_sum += point.y;
             }
-            // std::cout << std::endl;
+            my_armor_center.x = my_x_sum / 4;
+            my_armor_center.y = my_y_sum / 4;
+            cv::circle(my_img, cv::Point(my_armor_center.x, my_armor_center.y), 5, cv::Scalar(255, 0, 0), -1); // 蓝色填充，半径30
         }
     }
 };
