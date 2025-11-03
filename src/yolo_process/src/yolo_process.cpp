@@ -59,7 +59,7 @@ private:
     double kalman_dt = 0.0;
 
     // 加速度噪声方差
-    float a_variance = 0.1;
+    float a_variance = 20.0;
 
 public:
     KalmanFilter2D(cv::Point2f init_center, double dt)
@@ -97,8 +97,8 @@ public:
             0, 0, 1, 0;
 
         // 初始化测量噪声矩阵R
-        R << 0.1f, 0,
-            0, 0.1f;
+        R << 0.0005f, 0,
+            0, 0.0005f;
     }
 
     // -------------------------- 新增：仅执行预测步骤（无观测值时调用） --------------------------
@@ -177,6 +177,9 @@ public:
 class ImageSub : public rclcpp::Node
 {
 private:
+    // 新增：ESC键按下后设为true
+    bool exit_flag = false;
+
     // 滤波器是否已初始化
     bool is_kalman_initialized = false;
 
@@ -354,8 +357,11 @@ public:
             }
 
             cv::imshow("sub_img", my_img);
-            if (cv::waitKey(1))
+            int key = cv::waitKey(1) & 0xFF; // 取低字节，避免平台差异
+            if (key == 27)                   // 检测到ESC键
             {
+                exit_flag = true;
+                RCLCPP_INFO(this->get_logger(), "检测到ESC键，准备退出...");
             }
 
             // 更新上一帧时间戳
@@ -429,19 +435,28 @@ public:
             break;
         }
     }
+
+    // 获取退出标志
+    bool get_exit_flag()
+    {
+        return exit_flag;
+    }
 };
 
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
-    // 初始化 OpenCV 窗口（提前创建，避免回调中竞争）
-    cv::namedWindow("sub_img", cv::WINDOW_NORMAL);
-    // 运行订阅节点，获取包资源
     auto node = std::make_shared<ImageSub>();
-    rclcpp::spin(node);
+
+    // 替换原有的“rclcpp::spin(node)”
+    while (rclcpp::ok() && !node->get_exit_flag()) // 检测ROS状态和退出标志
+    {
+        rclcpp::spin_some(node);                                    // 非阻塞处理回调
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // 降低CPU占用
+    }
 
     // 清理资源
-    rclcpp::shutdown();
     cv::destroyAllWindows();
+    rclcpp::shutdown();
     return 0;
 }
